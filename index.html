@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>my-first-code 掲示板ログ</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg-color: #f5f7fb;
+        --text-color: #1e1e1e;
+        --muted-color: #5b6574;
+        --card-bg: #ffffff;
+        --accent: #2563eb;
+        --accent-soft: rgba(37, 99, 235, 0.12);
+        --border-radius: 16px;
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          sans-serif;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #0f172a;
+          --text-color: #f8fafc;
+          --muted-color: #94a3b8;
+          --card-bg: #16213d;
+          --accent-soft: rgba(96, 165, 250, 0.18);
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), transparent);
+        padding: 2.5rem 1.5rem 1.5rem;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+      }
+
+      header p {
+        margin: 0.85rem 0 1.5rem;
+        color: var(--muted-color);
+        line-height: 1.6;
+        max-width: 48rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .actions a.button-primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
+      }
+
+      .actions a.button-secondary {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+      }
+
+      .actions a:hover {
+        transform: translateY(-2px);
+      }
+
+      main {
+        flex: 1;
+        padding: 1.5rem;
+        max-width: 960px;
+        width: min(960px, 100%);
+        margin: 0 auto;
+      }
+
+      .status {
+        margin: 0 0 1.5rem;
+        padding: 1rem 1.2rem;
+        background: var(--accent-soft);
+        border-radius: var(--border-radius);
+        color: var(--muted-color);
+        font-size: 0.95rem;
+      }
+
+      .status.error {
+        background: rgba(248, 113, 113, 0.22);
+        color: #b91c1c;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .status.error {
+          background: rgba(248, 113, 113, 0.14);
+          color: #fca5a5;
+        }
+      }
+
+      .issues-list {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .issue-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1.4rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        display: grid;
+        gap: 0.7rem;
+      }
+
+      .issue-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .issue-title {
+        font-size: clamp(1.05rem, 3vw, 1.2rem);
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .issue-title a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .issue-title a:hover,
+      .issue-title a:focus-visible {
+        text-decoration: underline;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+
+      .pill.open {
+        background: rgba(34, 197, 94, 0.16);
+        color: #047857;
+      }
+
+      .pill.closed {
+        background: rgba(248, 113, 113, 0.16);
+        color: #b91c1c;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .pill.closed {
+          color: #fca5a5;
+        }
+        .pill.open {
+          color: #86efac;
+        }
+      }
+
+      .issue-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--muted-color);
+      }
+
+      .labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .label-chip {
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #0f172a;
+        background: rgba(148, 163, 184, 0.25);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .label-chip {
+          color: #e2e8f0;
+          background: rgba(148, 163, 184, 0.35);
+        }
+      }
+
+      footer {
+        padding: 1.2rem;
+        font-size: 0.85rem;
+        color: var(--muted-color);
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        header {
+          padding: 2rem 1rem 1.3rem;
+        }
+
+        main {
+          padding: 1rem;
+        }
+
+        .issue-card {
+          padding: 1.1rem;
+        }
+
+        .actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .actions a {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>my-first-code 掲示板ログ</h1>
+      <p>
+        GitHub Issues を掲示板代わりに利用しています。新規投稿・返信は GitHub
+        の Issue 画面から行ってください。ここでは最新の Issue を自動で取得して表示します。
+      </p>
+      <div class="actions">
+        <a
+          class="button-primary"
+          href="https://github.com/NoBeerNoLife/my-first-code/issues/new"
+          target="_blank"
+          rel="noopener"
+        >
+          新規投稿 (GitHub Issue)
+        </a>
+        <a
+          class="button-secondary"
+          href="https://github.com/NoBeerNoLife/my-first-code/issues"
+          target="_blank"
+          rel="noopener"
+        >
+          GitHub で全ての投稿を見る
+        </a>
+      </div>
+    </header>
+    <main>
+      <div id="status" class="status" role="status">読み込み中です…</div>
+      <section
+        id="issues"
+        class="issues-list"
+        aria-live="polite"
+        aria-busy="true"
+      ></section>
+    </main>
+    <footer>
+      GitHub API 経由で Issue を取得しています。読み込みには数秒かかる場合があります。
+    </footer>
+    <script>
+      const OWNER = "NoBeerNoLife";
+      const REPO = "my-first-code";
+      const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/issues?state=all&per_page=50`;
+
+      const statusEl = document.getElementById("status");
+      const issuesEl = document.getElementById("issues");
+
+      async function fetchIssues() {
+        try {
+          const response = await fetch(API_URL, {
+            headers: {
+              Accept: "application/vnd.github+json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(
+              `GitHub API error (${response.status} ${response.statusText})`
+            );
+          }
+
+          const rawIssues = await response.json();
+          return rawIssues.filter((issue) => !issue.pull_request);
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      }
+
+      function formatDate(value) {
+        const date = new Date(value);
+        return date.toLocaleString("ja-JP", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Asia/Tokyo",
+        });
+      }
+
+      function timeAgo(value) {
+        const date = new Date(value);
+        const diffMilliseconds = Date.now() - date.getTime();
+        const rtf = new Intl.RelativeTimeFormat("ja", { numeric: "auto" });
+
+        const ranges = {
+          year: 1000 * 60 * 60 * 24 * 365,
+          month: (1000 * 60 * 60 * 24 * 365) / 12,
+          week: 1000 * 60 * 60 * 24 * 7,
+          day: 1000 * 60 * 60 * 24,
+          hour: 1000 * 60 * 60,
+          minute: 1000 * 60,
+          second: 1000,
+        };
+
+        for (const [unit, millisecondsInUnit] of Object.entries(ranges)) {
+          if (Math.abs(diffMilliseconds) > millisecondsInUnit || unit === "second") {
+            return rtf.format(Math.round(diffMilliseconds / millisecondsInUnit) * -1, unit);
+          }
+        }
+        return "";
+      }
+
+      function createIssueCard(issue) {
+        const card = document.createElement("article");
+        card.className = "issue-card";
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", `Issue ${issue.number}: ${issue.title}`);
+
+        const header = document.createElement("header");
+        header.className = "issue-header";
+
+        const title = document.createElement("h2");
+        title.className = "issue-title";
+        const titleLink = document.createElement("a");
+        titleLink.href = issue.html_url;
+        titleLink.target = "_blank";
+        titleLink.rel = "noopener";
+        titleLink.textContent = `#${issue.number} ${issue.title}`;
+        title.appendChild(titleLink);
+
+        const statePill = document.createElement("span");
+        statePill.className = `pill ${issue.state}`;
+        statePill.textContent = issue.state === "open" ? "OPEN" : "CLOSED";
+
+        header.appendChild(title);
+        header.appendChild(statePill);
+
+        const meta = document.createElement("div");
+        meta.className = "issue-meta";
+        meta.innerHTML = `
+          <span>作成: @${issue.user.login}</span>
+          <span>更新: ${timeAgo(issue.updated_at)} ( ${formatDate(issue.updated_at)} )</span>
+          <span>コメント: ${issue.comments}</span>
+        `;
+
+        const labels = document.createElement("div");
+        labels.className = "labels";
+
+        if (issue.labels && issue.labels.length > 0) {
+          issue.labels.forEach((label) => {
+            const chip = document.createElement("span");
+            chip.className = "label-chip";
+            chip.textContent = label.name;
+            chip.style.backgroundColor = label.color
+              ? `#${label.color}30`
+              : "";
+            chip.style.color = label.color
+              ? `#${label.color}`
+              : "";
+            labels.appendChild(chip);
+          });
+        }
+
+        const bodyPreview = document.createElement("p");
+        bodyPreview.textContent = issue.body
+          ? issue.body.slice(0, 160).replace(/\s+/g, " ").trim() +
+            (issue.body.length > 160 ? "…" : "")
+          : "本文なし";
+
+        card.appendChild(header);
+        card.appendChild(meta);
+        if (labels.childElementCount) {
+          card.appendChild(labels);
+        }
+
+        card.appendChild(bodyPreview);
+
+        return card;
+      }
+
+      async function init() {
+        try {
+          statusEl.setAttribute("aria-busy", "true");
+          statusEl.textContent = "GitHub Issues を取得しています…";
+          const issues = await fetchIssues();
+          statusEl.setAttribute("aria-busy", "false");
+          issuesEl.setAttribute("aria-busy", "false");
+
+          if (issues.length === 0) {
+            statusEl.textContent =
+              "現在表示できる Issue はありません。初めての投稿を GitHub から作成してください。";
+            return;
+          }
+
+          statusEl.textContent = `最新の投稿 ${issues.length} 件を表示中です。`;
+
+          issues.forEach((issue) => {
+            const card = createIssueCard(issue);
+            issuesEl.appendChild(card);
+          });
+        } catch (error) {
+          statusEl.setAttribute("aria-busy", "false");
+          issuesEl.setAttribute("aria-busy", "false");
+          statusEl.textContent =
+            "Issue の取得に失敗しました。時間をおいて再読み込みしてください。";
+          statusEl.classList.add("error");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
