@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>my-first-code 掲示板ログ</title>
+    <title>NoBeerNoLife/20251018test 掲示板ログ</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -32,11 +32,15 @@
         box-sizing: border-box;
       }
 
+      html,
+      body {
+        height: 100%;
+      }
+
       body {
         margin: 0;
         background: var(--bg-color);
         color: var(--text-color);
-        min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
@@ -255,7 +259,7 @@
   </head>
   <body>
     <header>
-      <h1>my-first-code 掲示板ログ</h1>
+      <h1>NoBeerNoLife/20251018test 掲示板ログ</h1>
       <p>
         GitHub Issues を掲示板代わりに利用しています。新規投稿・返信は GitHub
         の Issue 画面から行ってください。ここでは最新の Issue を自動で取得して表示します。
@@ -263,7 +267,7 @@
       <div class="actions">
         <a
           class="button-primary"
-          href="https://github.com/NoBeerNoLife/my-first-code/issues/new"
+          href="https://github.com/NoBeerNoLife/20251018test/issues/new"
           target="_blank"
           rel="noopener"
         >
@@ -271,7 +275,7 @@
         </a>
         <a
           class="button-secondary"
-          href="https://github.com/NoBeerNoLife/my-first-code/issues"
+          href="https://github.com/NoBeerNoLife/20251018test/issues"
           target="_blank"
           rel="noopener"
         >
@@ -293,7 +297,7 @@
     </footer>
     <script>
       const OWNER = "NoBeerNoLife";
-      const REPO = "my-first-code";
+      const REPO = "20251018test";
       const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/issues?state=all&per_page=50`;
 
       const statusEl = document.getElementById("status");
